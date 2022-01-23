@@ -1,8 +1,34 @@
 import React, { useCallback, useState } from 'react';
-import {View , Text, TextInput, StyleSheet, TouchableOpacity} from 'react-native';
 import ModalDropdown from 'react-native-modal-dropdown';
+import styled from 'styled-components/native';
 
 import { TCurrency, IExchangeRate } from '../../models';
+import { Button } from '../Button';
+
+const ButtonText = styled.Text`
+  color: black;
+`;
+const LabelText = styled.Text`
+  padding-horizontal: 10;
+`;
+const Result = styled.View``;
+const Container = styled.View`
+  padding-horizontal: 10;
+`;
+const Input = styled.TextInput`
+  height: 40;
+  margin-horizontal: 12;
+  margin-vertical: 12;
+  border-width: 1;
+  padding-horizontal: 10;
+  padding-vertical: 10;
+`;
+const ModalContainer = styled.View`
+  border-width: 1;
+  border-color: black;
+  padding: 10px 10px;
+  margin: 10px 10px;
+`;
 
 interface ConvertFormProps {
   rates: IExchangeRate[];
@@ -16,11 +42,8 @@ export function Form({ rates, currencies }: ConvertFormProps) {
 
   const [currencyAmount, setCurrencyAmount] = useState(0);
   const [currencySelection, setCurrencySelection] = useState(0);
-  const onChangeAmount = useCallback((value) => {
-    setCurrencyAmount(value);
-  });
-  
-  const onSubmit =  () => {
+  const onChangeAmount = useCallback((value) => { setCurrencyAmount(value);});
+  const onSubmit = () => {
       if(currencyAmount !== 0){
       const value = currencyAmount;
       const rate = rates.find((r) => r.code === currencies[currencySelection]);
@@ -33,59 +56,31 @@ export function Form({ rates, currencies }: ConvertFormProps) {
         currency: currencies[currencySelection],
       });
     }
-    
-    }
-    
-  return (
-    <View style={styles.container}>
-      <Text style={styles.label}>CKZ *</Text>
-      <TextInput
-        style={styles.input}
-        onChangeText={onChangeAmount}
-        value={currencyAmount}
-        placeholder="Enter Amount CKZ"
-        keyboardType="numeric"
-      />
-      <View style={styles.dropDown}>
-      <ModalDropdown options={currencies} onSelect = {index => {
-        setCurrencySelection(index);
-        }}
-        isFullWidth
-      />
-    </View>
+  }
 
-      <TouchableOpacity onPress={onSubmit} style={styles.convertButton}>
-        <Text>Convert</Text>
-      </TouchableOpacity>
-      {convertedValue ? (  
-          <View><Text>Result ${convertedValue.amount.toFixed(2)} ${convertedValue.currency}</Text></View>
-            ) : null}
-    </View>
-      
+  return (
+    <Container>
+      <LabelText>CKZ *</LabelText>
+      <Input placeholder="Enter Amount CKZ" keyboardType="numeric" onChangeText={onChangeAmount} value={currencyAmount} />
+      <ModalContainer>  
+        <ModalDropdown options={currencies} onSelect = {index => {
+          setCurrencySelection(index);
+          }}
+          isFullWidth
+        />
+      </ModalContainer>
+    
+      <Button onPress={onSubmit}>
+        <ButtonText>Convert</ButtonText>
+      </Button>
+      {convertedValue ? (
+        <Result>
+          <ButtonText>
+            Result ${convertedValue.amount.toFixed(2)}
+            ${convertedValue.currency}
+          </ButtonText>
+        </Result>
+      ) : null}
+    </Container>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: 10,
-  },
-  input: {
-    height: 40,
-    margin: 12,
-    borderWidth: 1,
-    padding: 10,
-  },
-  convertButton: {
-    backgroundColor: 'lightblue',
-    paddingVertical: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginHorizontal: 10,
-  },
-  label: {
-    paddingHorizontal: 10,
-  },
-  dropDown: {
-    borderWidth: 1, borderColor: 'black', padding: 10, margin: 10
-  }
-});
